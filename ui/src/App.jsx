@@ -2,6 +2,9 @@ import { useState } from 'react';
 import Header from './components/Header';
 import MenuCard from './components/MenuCard';
 import ShoppingCart from './components/ShoppingCart';
+import AdminDashboard from './components/AdminDashboard';
+import InventorySection from './components/InventorySection';
+import OrderList from './components/OrderList';
 import './App.css';
 
 // 임시 메뉴 데이터
@@ -77,6 +80,21 @@ const menuData = [
 function App() {
   const [currentPage, setCurrentPage] = useState('order');
   const [cartItems, setCartItems] = useState([]);
+  
+  // 관리자 화면 상태
+  const [inventories, setInventories] = useState([
+    { menuId: 1, menuName: '아메리카노(ICE)', stock: 10 },
+    { menuId: 2, menuName: '아메리카노(HOT)', stock: 10 },
+    { menuId: 3, menuName: '카페라떼', stock: 10 },
+    { menuId: 4, menuName: '카푸치노', stock: 10 },
+    { menuId: 5, menuName: '카라멜 마키아토', stock: 10 },
+    { menuId: 6, menuName: '바닐라 라떼', stock: 10 }
+  ]);
+  
+  const [orders, setOrders] = useState([]);
+  
+  // 주문 ID 카운터 (실제로는 서버에서 관리)
+  const [orderIdCounter, setOrderIdCounter] = useState(1);
 
   const handleAddToCart = (item) => {
     // 동일한 메뉴와 옵션 조합 찾기
@@ -124,18 +142,73 @@ function App() {
       return;
     }
 
-    // TODO: API 호출로 주문 전송
-    console.log('주문하기:', cartItems);
+    // 주문 생성
+    const totalPrice = cartItems.reduce((sum, item) => {
+      const itemPrice = item.basePrice + item.selectedOptions.reduce((optSum, opt) => optSum + opt.price, 0);
+      return sum + (itemPrice * item.quantity);
+    }, 0);
+
+    const newOrder = {
+      id: orderIdCounter,
+      orderTime: new Date().toISOString(),
+      items: cartItems.map(item => ({
+        menuId: item.menuId,
+        menuName: item.menuName,
+        quantity: item.quantity,
+        options: item.selectedOptions,
+        price: item.basePrice + item.selectedOptions.reduce((sum, opt) => sum + opt.price, 0)
+      })),
+      totalPrice: totalPrice,
+      status: '주문 접수'
+    };
+
+    setOrders([newOrder, ...orders]);
+    setOrderIdCounter(orderIdCounter + 1);
     alert('주문이 완료되었습니다!');
     setCartItems([]);
   };
 
   const handleNavigate = (page) => {
     setCurrentPage(page);
-    // 관리자 화면은 나중에 구현
-    if (page === 'admin') {
-      alert('관리자 화면은 준비 중입니다.');
-    }
+  };
+
+  // 재고 업데이트
+  const handleUpdateStock = (menuId, newStock) => {
+    setInventories(inventories.map(inv => 
+      inv.menuId === menuId ? { ...inv, stock: newStock } : inv
+    ));
+  };
+
+  // 주문 상태 업데이트
+  const handleUpdateOrderStatus = (orderId, newStatus) => {
+    setOrders(orders.map(order => 
+      order.id === orderId ? { ...order, status: newStatus } : order
+    ));
+  };
+
+  // 주문 완료 처리 (재고 차감)
+  const handleCompleteOrder = (order) => {
+    // 주문된 각 메뉴의 재고 차감
+    setInventories(prevInventories => {
+      return prevInventories.map(inventory => {
+        const orderItem = order.items.find(item => item.menuId === inventory.menuId);
+        if (orderItem) {
+          return {
+            ...inventory,
+            stock: Math.max(0, inventory.stock - orderItem.quantity)
+          };
+        }
+        return inventory;
+      });
+    });
+  };
+
+  // 대시보드 통계 계산
+  const dashboardStats = {
+    totalOrders: orders.length,
+    receivedOrders: orders.filter(o => o.status === '주문 접수').length,
+    manufacturingOrders: orders.filter(o => o.status === '제조 중').length,
+    completedOrders: orders.filter(o => o.status === '제조 완료').length
   };
 
   return (
@@ -162,6 +235,20 @@ function App() {
               onRemoveItem={handleRemoveItem}
             />
           </div>
+        </main>
+      )}
+      {currentPage === 'admin' && (
+        <main className="main-content">
+          <AdminDashboard stats={dashboardStats} />
+          <InventorySection 
+            inventories={inventories} 
+            onUpdateStock={handleUpdateStock}
+          />
+          <OrderList 
+            orders={orders} 
+            onUpdateOrderStatus={handleUpdateOrderStatus}
+            onCompleteOrder={handleCompleteOrder}
+          />
         </main>
       )}
     </div>
