@@ -96,6 +96,8 @@ function App() {
   // 주문 ID 카운터 (실제로는 서버에서 관리)
   const [orderIdCounter, setOrderIdCounter] = useState(1);
 
+  const [showOrderModal, setShowOrderModal] = useState(false); // 주문 완료 모달
+
   const handleAddToCart = (item) => {
     // 동일한 메뉴와 옵션 조합 찾기
     const existingItemIndex = cartItems.findIndex(cartItem => {
@@ -164,7 +166,7 @@ function App() {
 
     setOrders([newOrder, ...orders]);
     setOrderIdCounter(orderIdCounter + 1);
-    alert('주문이 완료되었습니다!');
+    setShowOrderModal(true); // 모달 띄움
     setCartItems([]);
   };
 
@@ -214,6 +216,15 @@ function App() {
   return (
     <div className="app">
       <Header currentPage={currentPage} onNavigate={handleNavigate} />
+      {/* 주문 완료 모달 */}
+      {showOrderModal && (
+        <div className="modal-overlay">
+          <div className="modal-box">
+            <h3>주문이 완료되었습니다!</h3>
+            <button className="modal-close-btn" onClick={() => setShowOrderModal(false)}>확인</button>
+          </div>
+        </div>
+      )}
       {currentPage === 'order' && (
         <main className="main-content">
           <div className="menu-section">
@@ -233,6 +244,7 @@ function App() {
               onOrder={handleOrder}
               onUpdateQuantity={handleUpdateQuantity}
               onRemoveItem={handleRemoveItem}
+              onClearCart={() => setCartItems([])}
             />
           </div>
         </main>

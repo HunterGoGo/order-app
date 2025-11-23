@@ -1,6 +1,6 @@
 import './ShoppingCart.css';
 
-function ShoppingCart({ cartItems, onOrder, onUpdateQuantity, onRemoveItem }) {
+function ShoppingCart({ cartItems, onOrder, onUpdateQuantity, onRemoveItem, onClearCart }) {
   const calculateTotal = () => {
     return cartItems.reduce((sum, item) => {
       const itemPrice = item.basePrice + item.selectedOptions.reduce((optSum, opt) => optSum + opt.price, 0);
@@ -69,6 +69,9 @@ function ShoppingCart({ cartItems, onOrder, onUpdateQuantity, onRemoveItem }) {
             </div>
             <button className="order-btn" onClick={onOrder}>
               주문하기
+            </button>
+            <button className="clear-cart-btn" onClick={onClearCart}>
+              전체 비우기
             </button>
           </div>
         </div>

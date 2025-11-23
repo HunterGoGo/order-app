@@ -172,6 +172,23 @@
   background-color: #6d28d9;
 }
 
+.clear-cart-btn {
+  padding: 0.5rem 1.25rem;
+  background-color: #f3f4f6;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  color: #4c1d95;
+  font-size: 0.98rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.clear-cart-btn:hover {
+  background-color: #ede9fe;
+  border-color: #a5b4fc;
+}
+
 @media (max-width: 768px) {
   .cart-content {
     grid-template-columns: 1fr;
