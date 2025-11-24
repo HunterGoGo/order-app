@@ -269,14 +269,3 @@ function App() {
 
 export default App;
 
-            orders={orders} 
-            onUpdateOrderStatus={handleUpdateOrderStatus}
-            onCompleteOrder={handleCompleteOrder}
-          />
-        </main>
-      )}
-    </div>
-  );
-}
-
-export default App;
