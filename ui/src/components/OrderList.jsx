@@ -34,11 +34,10 @@ function OrderList({ orders, onUpdateOrderStatus, onCompleteOrder }) {
         <button 
           className="status-btn manufacturing-btn"
           onClick={() => {
-            onUpdateOrderStatus(order.id, '제조 완료');
             onCompleteOrder(order);
           }}
         >
-          제조 중
+          제조 완료
         </button>
       );
     } else if (order.status === '제조 완료') {

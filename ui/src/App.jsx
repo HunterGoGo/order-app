@@ -5,99 +5,81 @@ import ShoppingCart from './components/ShoppingCart';
 import AdminDashboard from './components/AdminDashboard';
 import InventorySection from './components/InventorySection';
 import OrderList from './components/OrderList';
+import {
+  fetchMenus,
+  createOrder as createOrderAPI,
+  fetchInventory,
+  updateInventory as updateInventoryAPI,
+  fetchOrders,
+  fetchDashboardStats,
+  updateOrderStatus as updateOrderStatusAPI,
+  completeOrder as completeOrderAPI
+} from './services/api';
 import './App.css';
-
-// 임시 메뉴 데이터
-const menuData = [
-  {
-    id: 1,
-    name: '아메리카노(ICE)',
-    price: 4000,
-    description: '시원한 아이스 아메리카노',
-    imageUrl: 'https://images.unsplash.com/photo-1517487881594-2787fef5ebf7?w=400&h=300&fit=crop',
-    options: [
-      { id: 1, name: '샷 추가', price: 500 },
-      { id: 2, name: '시럽 추가', price: 0 }
-    ]
-  },
-  {
-    id: 2,
-    name: '아메리카노(HOT)',
-    price: 4000,
-    description: '따뜻한 핫 아메리카노',
-    imageUrl: 'https://images.unsplash.com/photo-1517487881594-2787fef5ebf7?w=400&h=300&fit=crop',
-    options: [
-      { id: 1, name: '샷 추가', price: 500 },
-      { id: 2, name: '시럽 추가', price: 0 }
-    ]
-  },
-  {
-    id: 3,
-    name: '카페라떼',
-    price: 5000,
-    description: '부드러운 우유와 에스프레소의 조화',
-    imageUrl: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&h=300&fit=crop',
-    options: [
-      { id: 1, name: '샷 추가', price: 500 },
-      { id: 2, name: '시럽 추가', price: 0 }
-    ]
-  },
-  {
-    id: 4,
-    name: '카푸치노',
-    price: 5000,
-    description: '에스프레소와 스팀 밀크, 우유 거품',
-    imageUrl: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400&h=300&fit=crop',
-    options: [
-      { id: 1, name: '샷 추가', price: 500 },
-      { id: 2, name: '시럽 추가', price: 0 }
-    ]
-  },
-  {
-    id: 5,
-    name: '카라멜 마키아토',
-    price: 6000,
-    description: '카라멜 시럽이 들어간 달콤한 커피',
-    imageUrl: 'https://images.unsplash.com/photo-1517487881594-2787fef5ebf7?w=400&h=300&fit=crop',
-    options: [
-      { id: 1, name: '샷 추가', price: 500 },
-      { id: 2, name: '시럽 추가', price: 0 }
-    ]
-  },
-  {
-    id: 6,
-    name: '바닐라 라떼',
-    price: 5500,
-    description: '바닐라 시럽이 들어간 부드러운 라떼',
-    imageUrl: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&h=300&fit=crop',
-    options: [
-      { id: 1, name: '샷 추가', price: 500 },
-      { id: 2, name: '시럽 추가', price: 0 }
-    ]
-  }
-];
 
 function App() {
   const [currentPage, setCurrentPage] = useState('order');
   const [cartItems, setCartItems] = useState([]);
+  const [menuData, setMenuData] = useState([]);
+  const [loading, setLoading] = useState(false);
   
   // 관리자 화면 상태
-  const [inventories, setInventories] = useState([
-    { menuId: 1, menuName: '아메리카노(ICE)', stock: 10 },
-    { menuId: 2, menuName: '아메리카노(HOT)', stock: 10 },
-    { menuId: 3, menuName: '카페라떼', stock: 10 },
-    { menuId: 4, menuName: '카푸치노', stock: 10 },
-    { menuId: 5, menuName: '카라멜 마키아토', stock: 10 },
-    { menuId: 6, menuName: '바닐라 라떼', stock: 10 }
-  ]);
-  
+  const [inventories, setInventories] = useState([]);
   const [orders, setOrders] = useState([]);
-  
-  // 주문 ID 카운터 (실제로는 서버에서 관리)
-  const [orderIdCounter, setOrderIdCounter] = useState(1);
+  const [dashboardStats, setDashboardStats] = useState({
+    totalOrders: 0,
+    receivedOrders: 0,
+    manufacturingOrders: 0,
+    completedOrders: 0
+  });
 
   const [showOrderModal, setShowOrderModal] = useState(false); // 주문 완료 모달
   const [orderModalMessage, setOrderModalMessage] = useState(''); // 주문 완료 메시지
+
+  // 메뉴 데이터 로드
+  useEffect(() => {
+    const loadMenus = async () => {
+      try {
+        setLoading(true);
+        const menus = await fetchMenus();
+        if (menus && menus.length > 0) {
+          setMenuData(menus);
+        } else {
+          console.warn('메뉴 데이터가 비어있습니다.');
+          setMenuData([]);
+        }
+      } catch (error) {
+        console.error('메뉴 로드 오류:', error);
+        alert(`메뉴를 불러오는데 실패했습니다: ${error.message}`);
+        setMenuData([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadMenus();
+  }, []);
+
+  // 관리자 화면 데이터 로드
+  useEffect(() => {
+    if (currentPage === 'admin') {
+      const loadAdminData = async () => {
+        try {
+          const [inventoryData, ordersData, stats] = await Promise.all([
+            fetchInventory(),
+            fetchOrders(),
+            fetchDashboardStats()
+          ]);
+          setInventories(inventoryData);
+          setOrders(ordersData);
+          setDashboardStats(stats);
+        } catch (error) {
+          console.error('관리자 데이터 로드 오류:', error);
+          alert('데이터를 불러오는데 실패했습니다.');
+        }
+      };
+      loadAdminData();
+    }
+  }, [currentPage]);
 
   // ESC 키로 모달 닫기
   useEffect(() => {
@@ -150,58 +132,48 @@ function App() {
     setCartItems(updatedCart);
   };
 
-  const handleOrder = () => {
+  const handleOrder = async () => {
     if (cartItems.length === 0) {
       alert('장바구니가 비어있습니다.');
       return;
     }
 
-    // 재고 확인
-    const insufficientStockItems = [];
-    cartItems.forEach(item => {
-      const inventory = inventories.find(inv => inv.menuId === item.menuId);
-      if (!inventory || inventory.stock < item.quantity) {
-        insufficientStockItems.push({
-          menuName: item.menuName,
-          required: item.quantity,
-          available: inventory ? inventory.stock : 0
-        });
-      }
-    });
-
-    if (insufficientStockItems.length > 0) {
-      const message = insufficientStockItems
-        .map(item => `${item.menuName}: 필요 ${item.required}개, 재고 ${item.available}개`)
-        .join('\n');
-      alert(`재고가 부족합니다:\n${message}`);
-      return;
-    }
-
-    // 주문 생성
-    const totalPrice = cartItems.reduce((sum, item) => {
-      const itemPrice = item.basePrice + item.selectedOptions.reduce((optSum, opt) => optSum + opt.price, 0);
-      return sum + (itemPrice * item.quantity);
-    }, 0);
-
-    const newOrder = {
-      id: orderIdCounter,
-      orderTime: new Date().toISOString(),
-      items: cartItems.map(item => ({
+    try {
+      setLoading(true);
+      // API로 주문 생성
+      const orderItems = cartItems.map(item => ({
         menuId: item.menuId,
         menuName: item.menuName,
         quantity: item.quantity,
-        options: item.selectedOptions,
-        price: item.basePrice + item.selectedOptions.reduce((sum, opt) => sum + opt.price, 0)
-      })),
-      totalPrice: totalPrice,
-      status: '주문 접수'
-    };
+        options: item.selectedOptions.map(opt => ({
+          id: opt.id,
+          name: opt.name,
+          price: opt.price
+        })),
+        basePrice: item.basePrice
+      }));
 
-    setOrders([newOrder, ...orders]);
-    setOrderIdCounter(orderIdCounter + 1);
-    setOrderModalMessage(`주문 번호: ${orderIdCounter}\n총 금액: ${totalPrice.toLocaleString()}원`);
-    setShowOrderModal(true); // 모달 띄움
-    setCartItems([]);
+      const newOrder = await createOrderAPI(orderItems);
+      
+      setOrderModalMessage(`주문 번호: ${newOrder.id}\n총 금액: ${newOrder.totalPrice.toLocaleString()}원`);
+      setShowOrderModal(true);
+      setCartItems([]);
+      
+      // 관리자 화면이면 주문 목록 새로고침
+      if (currentPage === 'admin') {
+        const [ordersData, stats] = await Promise.all([
+          fetchOrders(),
+          fetchDashboardStats()
+        ]);
+        setOrders(ordersData);
+        setDashboardStats(stats);
+      }
+    } catch (error) {
+      console.error('주문 생성 오류:', error);
+      alert(error.message || '주문 생성에 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleNavigate = (page) => {
@@ -209,42 +181,55 @@ function App() {
   };
 
   // 재고 업데이트
-  const handleUpdateStock = (menuId, newStock) => {
-    setInventories(inventories.map(inv => 
-      inv.menuId === menuId ? { ...inv, stock: newStock } : inv
-    ));
+  const handleUpdateStock = async (menuId, newStock) => {
+    try {
+      const updated = await updateInventoryAPI(menuId, newStock);
+      setInventories(inventories.map(inv => 
+        inv.menuId === menuId ? updated : inv
+      ));
+    } catch (error) {
+      console.error('재고 업데이트 오류:', error);
+      alert(error.message || '재고 업데이트에 실패했습니다.');
+    }
   };
 
   // 주문 상태 업데이트
-  const handleUpdateOrderStatus = (orderId, newStatus) => {
-    setOrders(orders.map(order => 
-      order.id === orderId ? { ...order, status: newStatus } : order
-    ));
+  const handleUpdateOrderStatus = async (orderId, newStatus) => {
+    try {
+      await updateOrderStatusAPI(orderId, newStatus);
+      
+      // 주문 목록 새로고침
+      const [ordersData, stats] = await Promise.all([
+        fetchOrders(),
+        fetchDashboardStats()
+      ]);
+      setOrders(ordersData);
+      setDashboardStats(stats);
+    } catch (error) {
+      console.error('주문 상태 업데이트 오류:', error);
+      alert(error.message || '주문 상태 업데이트에 실패했습니다.');
+    }
   };
 
   // 주문 완료 처리 (재고 차감)
-  const handleCompleteOrder = (order) => {
-    // 주문된 각 메뉴의 재고 차감
-    setInventories(prevInventories => {
-      return prevInventories.map(inventory => {
-        const orderItem = order.items.find(item => item.menuId === inventory.menuId);
-        if (orderItem) {
-          return {
-            ...inventory,
-            stock: Math.max(0, inventory.stock - orderItem.quantity)
-          };
-        }
-        return inventory;
-      });
-    });
-  };
-
-  // 대시보드 통계 계산
-  const dashboardStats = {
-    totalOrders: orders.length,
-    receivedOrders: orders.filter(o => o.status === '주문 접수').length,
-    manufacturingOrders: orders.filter(o => o.status === '제조 중').length,
-    completedOrders: orders.filter(o => o.status === '제조 완료').length
+  const handleCompleteOrder = async (order) => {
+    try {
+      // completeOrder API가 상태를 "제조 완료"로 업데이트하고 재고를 차감합니다
+      await completeOrderAPI(order.id);
+      
+      // 데이터 새로고침
+      const [inventoryData, ordersData, stats] = await Promise.all([
+        fetchInventory(),
+        fetchOrders(),
+        fetchDashboardStats()
+      ]);
+      setInventories(inventoryData);
+      setOrders(ordersData);
+      setDashboardStats(stats);
+    } catch (error) {
+      console.error('주문 완료 처리 오류:', error);
+      alert(error.message || '주문 완료 처리에 실패했습니다.');
+    }
   };
 
   return (
@@ -265,15 +250,23 @@ function App() {
       {currentPage === 'order' && (
         <main className="main-content">
           <div className="menu-section">
-            <div className="menu-grid">
-              {menuData.map(menu => (
-                <MenuCard 
-                  key={menu.id} 
-                  menu={menu} 
-                  onAddToCart={handleAddToCart}
-                />
-              ))}
-            </div>
+            {loading ? (
+              <p>메뉴를 불러오는 중...</p>
+            ) : menuData.length === 0 ? (
+              <p style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
+                메뉴가 없습니다. 데이터베이스에 메뉴 데이터를 추가해주세요.
+              </p>
+            ) : (
+              <div className="menu-grid">
+                {menuData.map(menu => (
+                  <MenuCard 
+                    key={menu.id} 
+                    menu={menu} 
+                    onAddToCart={handleAddToCart}
+                  />
+                ))}
+              </div>
+            )}
           </div>
           <div className="cart-section">
             <ShoppingCart 

@@ -26,13 +26,24 @@ DB_PASSWORD=your_password
 
 ### 데이터베이스 초기화
 
-프로젝트를 처음 시작할 때 데이터베이스를 생성해야 합니다:
+프로젝트를 처음 시작할 때 다음 순서로 데이터베이스를 설정하세요:
 
+1. 데이터베이스 생성:
 ```bash
 node scripts/init-db.js
 ```
 
-이 스크립트는 `order_app` 데이터베이스를 생성합니다 (이미 존재하는 경우 건너뜁니다).
+2. 테이블 생성:
+```bash
+node scripts/create-tables.js
+```
+
+3. 초기 데이터 삽입 (선택사항):
+```bash
+node scripts/seed-data.js
+```
+
+이 스크립트는 `order_app` 데이터베이스를 생성하고, 필요한 테이블을 생성하며, 샘플 메뉴 데이터를 삽입합니다.
 
 ## 실행
 
