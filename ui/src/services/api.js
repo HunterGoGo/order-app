@@ -1,7 +1,14 @@
 // API 기본 URL 설정
 // 개발 환경: localhost
 // 프로덕션 환경: Render 배포 URL
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+// VITE_API_URL에 /api를 포함하지 않으면 자동으로 추가
+const getApiBaseUrl = () => {
+  const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+  // /api로 끝나지 않으면 추가
+  return baseUrl.endsWith('/api') ? baseUrl : `${baseUrl}/api`;
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 // 메뉴 목록 조회
 export const fetchMenus = async () => {

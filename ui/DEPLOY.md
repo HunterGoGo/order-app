@@ -50,10 +50,13 @@ git push origin main
    
    ```
    Key: VITE_API_URL
-   Value: https://order-app-server.onrender.com
+   Value: https://order-app-server.onrender.com/api
    ```
-   > ⚠️ **중요**: `order-app-server.onrender.com`을 실제 백엔드 서버 URL로 변경하세요!
-   > 백엔드 서버가 배포된 후 생성된 URL을 사용해야 합니다.
+   > ⚠️ **중요**: 
+   > - `order-app-server.onrender.com`을 실제 백엔드 서버 URL로 변경하세요!
+   > - URL 끝에 **반드시 `/api`를 포함**해야 합니다!
+   > - 예: `https://order-app-server.onrender.com/api`
+   > - 백엔드 서버가 배포된 후 생성된 URL을 사용해야 합니다.
 
 6. **Create Static Site** 클릭
 
@@ -113,12 +116,16 @@ VITE_API_URL=https://order-app-server.onrender.com
   - 이미지가 `public/images/` 폴더에 있는지 확인
   - 데이터베이스의 `image_url`이 `/images/파일명.jpg` 형식인지 확인
 
-### API 연결 실패
-- **원인**: `VITE_API_URL` 환경 변수 미설정 또는 잘못된 URL
+### API 연결 실패 (Not Found 오류)
+- **원인**: 
+  - `VITE_API_URL` 환경 변수 미설정 또는 잘못된 URL
+  - URL 끝에 `/api`가 누락됨
 - **해결**:
   - Render.com 대시보드 → Environment Variables 확인
-  - `VITE_API_URL`이 올바른 백엔드 URL인지 확인
+  - `VITE_API_URL`이 `https://order-app-server.onrender.com/api` 형식인지 확인 (끝에 `/api` 포함)
   - 백엔드 서버가 실행 중인지 확인
+  - 브라우저 개발자 도구 → Network 탭에서 실제 요청 URL 확인
+  - `https://order-app-server.onrender.com/api/menus` 직접 접속하여 테스트
 
 ### CORS 에러
 - **원인**: 백엔드 서버의 CORS 설정 문제
