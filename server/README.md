@@ -45,6 +45,20 @@ node scripts/seed-data.js
 
 이 스크립트는 `order_app` 데이터베이스를 생성하고, 필요한 테이블을 생성하며, 샘플 메뉴 데이터를 삽입합니다.
 
+### 이미지 파일 설정
+
+1. 이미지 파일을 `ui/public/images/` 폴더에 넣으세요.
+2. 이미지 URL을 업데이트하려면:
+```bash
+# 스크립트의 imageMap을 실제 파일명에 맞게 수정한 후
+node scripts/update-images.js
+```
+
+또는 직접 데이터베이스에서 업데이트:
+```sql
+UPDATE menus SET image_url = '/images/파일명.jpg' WHERE name = '메뉴명';
+```
+
 ## 실행
 
 ### 개발 모드 (nodemon 사용)
