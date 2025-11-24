@@ -6,13 +6,32 @@ dotenv.config();
 const { Client } = pkg;
 
 const seedData = async () => {
-  const client = new Client({
-    host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT || 5432,
-    database: process.env.DB_NAME || 'order_app',
-    user: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASSWORD || '',
-  });
+  // DATABASE_URL이 있으면 파싱하여 사용 (Render.com 형식)
+  let dbConfig;
+  if (process.env.DATABASE_URL) {
+    const url = new URL(process.env.DATABASE_URL);
+    dbConfig = {
+      host: url.hostname,
+      port: parseInt(url.port) || 5432,
+      database: url.pathname.slice(1), // 첫 번째 '/' 제거
+      user: url.username,
+      password: url.password,
+      ssl: { rejectUnauthorized: false }, // Render.com은 SSL 필요
+    };
+  } else {
+    dbConfig = {
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT) || 5432,
+      database: process.env.DB_NAME || 'order_app',
+      user: process.env.DB_USER || 'postgres',
+      password: process.env.DB_PASSWORD || '',
+      ssl: process.env.DB_HOST && process.env.DB_HOST.includes('render.com') 
+        ? { rejectUnauthorized: false } 
+        : false,
+    };
+  }
+
+  const client = new Client(dbConfig);
 
   try {
     await client.connect();
