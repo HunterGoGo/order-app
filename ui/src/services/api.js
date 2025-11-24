@@ -1,4 +1,7 @@
-const API_BASE_URL = 'http://localhost:3000/api';
+// API 기본 URL 설정
+// 개발 환경: localhost
+// 프로덕션 환경: Render 배포 URL
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 // 메뉴 목록 조회
 export const fetchMenus = async () => {
@@ -115,4 +118,3 @@ export const completeOrder = async (orderId) => {
   }
   return response.json();
 };
-
