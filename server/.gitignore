@@ -1,0 +1,72 @@
+# 의존성
+node_modules/
+
+# 환경 변수 및 시크릿
+.env
+.env.local
+.env.*.local
+
+# 로그 파일
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+logs/
+*.log.*
+
+# 운영체제 파일
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# IDE 및 에디터 설정
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# 테스트 및 커버리지
+coverage/
+.nyc_output/
+*.lcov
+.jest/
+
+# 빌드 및 임시 파일
+dist/
+build/
+.cache/
+.temp/
+tmp/
+*.tmp
+
+# 데이터베이스 백업 및 덤프 파일
+*.sql
+*.dump
+*.backup
+
+# 패키지 매니저
+.npm
+.yarn/
+.pnp.*
+yarn.lock
+pnpm-lock.yaml
+
+# 기타
+*.pid
+*.seed
+*.pid.lock
+.npmrc
+.eslintcache
+
