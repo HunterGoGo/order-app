@@ -13,7 +13,7 @@ function OrderList({ orders, onUpdateOrderStatus, onCompleteOrder }) {
   const formatOrderItems = (items) => {
     return items.map(item => {
       const optionsText = item.options && item.options.length > 0
-        ? ` (${item.options.map(opt => opt.optionName).join(', ')})`
+        ? ` (${item.options.map(opt => opt.name).join(', ')})`
         : '';
       return `${item.menuName}${optionsText} x ${item.quantity}`;
     }).join(', ');

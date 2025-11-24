@@ -57,11 +57,12 @@
   display: flex;
   gap: 0.5rem;
   margin-top: auto;
+  justify-content: center;
 }
 
 .stock-btn {
   flex: 1;
-  padding: 0.5rem;
+  padding: 0.25rem 0.5rem;
   border: 1px solid #e0e0e0;
   border-radius: 4px;
   background-color: #f9fafb;
@@ -71,6 +72,9 @@
   color: #1f2937;
   transition: all 0.2s;
   min-width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .stock-btn:hover:not(:disabled) {
@@ -91,6 +95,10 @@
   background-color: #4c1d95;
   color: white;
   border-color: #4c1d95;
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 50px;
+  max-width: 80px;
 }
 
 .increase-btn:hover:not(:disabled) {
@@ -100,6 +108,10 @@
 .decrease-btn {
   background-color: #f9fafb;
   color: #1f2937;
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 50px;
+  max-width: 80px;
 }
 
 .decrease-btn:hover:not(:disabled) {

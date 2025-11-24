@@ -67,10 +67,20 @@ function ShoppingCart({ cartItems, onOrder, onUpdateQuantity, onRemoveItem, onCl
               <span>총 금액</span>
               <span className="total-amount">{calculateTotal().toLocaleString()}원</span>
             </div>
-            <button className="order-btn" onClick={onOrder}>
+            <button 
+              className="order-btn" 
+              onClick={onOrder}
+              disabled={cartItems.length === 0}
+              aria-label="주문하기"
+            >
               주문하기
             </button>
-            <button className="clear-cart-btn" onClick={onClearCart}>
+            <button 
+              className="clear-cart-btn" 
+              onClick={onClearCart}
+              disabled={cartItems.length === 0}
+              aria-label="장바구니 전체 비우기"
+            >
               전체 비우기
             </button>
           </div>

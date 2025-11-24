@@ -172,6 +172,16 @@
   background-color: #6d28d9;
 }
 
+.order-btn:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.order-btn:disabled:hover {
+  background-color: #9ca3af;
+}
+
 .clear-cart-btn {
   padding: 0.5rem 1.25rem;
   background-color: #f3f4f6;
@@ -187,6 +197,16 @@
 .clear-cart-btn:hover {
   background-color: #ede9fe;
   border-color: #a5b4fc;
+}
+
+.clear-cart-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.clear-cart-btn:disabled:hover {
+  background-color: #f3f4f6;
+  border-color: #e0e0e0;
 }
 
 @media (max-width: 768px) {

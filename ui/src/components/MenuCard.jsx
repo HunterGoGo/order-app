@@ -3,6 +3,7 @@ import './MenuCard.css';
 
 function MenuCard({ menu, onAddToCart }) {
   const [selectedOptions, setSelectedOptions] = useState([]);
+  const [imageError, setImageError] = useState(false);
 
   const handleOptionChange = (optionId, isChecked) => {
     if (isChecked) {
@@ -29,18 +30,16 @@ function MenuCard({ menu, onAddToCart }) {
     setSelectedOptions([]);
   };
 
-  const calculatePrice = () => {
-    const optionsPrice = menu.options
-      .filter(opt => selectedOptions.includes(opt.id))
-      .reduce((sum, opt) => sum + opt.price, 0);
-    return menu.price + optionsPrice;
-  };
-
   return (
     <div className="menu-card">
       <div className="menu-image">
-        {menu.imageUrl ? (
-          <img src={menu.imageUrl} alt={menu.name} className="menu-img" />
+        {menu.imageUrl && !imageError ? (
+          <img 
+            src={menu.imageUrl} 
+            alt={menu.name} 
+            className="menu-img"
+            onError={() => setImageError(true)}
+          />
         ) : (
           <div className="image-placeholder">이미지</div>
         )}
@@ -63,7 +62,11 @@ function MenuCard({ menu, onAddToCart }) {
             </label>
           ))}
         </div>
-        <button className="add-to-cart-btn" onClick={handleAddToCart}>
+        <button 
+          className="add-to-cart-btn" 
+          onClick={handleAddToCart}
+          aria-label={`${menu.name} 장바구니에 추가`}
+        >
           담기
         </button>
       </div>

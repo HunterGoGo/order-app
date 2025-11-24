@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from './components/Header';
 import MenuCard from './components/MenuCard';
 import ShoppingCart from './components/ShoppingCart';
@@ -97,6 +97,18 @@ function App() {
   const [orderIdCounter, setOrderIdCounter] = useState(1);
 
   const [showOrderModal, setShowOrderModal] = useState(false); // 주문 완료 모달
+  const [orderModalMessage, setOrderModalMessage] = useState(''); // 주문 완료 메시지
+
+  // ESC 키로 모달 닫기
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape' && showOrderModal) {
+        setShowOrderModal(false);
+      }
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [showOrderModal]);
 
   const handleAddToCart = (item) => {
     // 동일한 메뉴와 옵션 조합 찾기
@@ -144,6 +156,27 @@ function App() {
       return;
     }
 
+    // 재고 확인
+    const insufficientStockItems = [];
+    cartItems.forEach(item => {
+      const inventory = inventories.find(inv => inv.menuId === item.menuId);
+      if (!inventory || inventory.stock < item.quantity) {
+        insufficientStockItems.push({
+          menuName: item.menuName,
+          required: item.quantity,
+          available: inventory ? inventory.stock : 0
+        });
+      }
+    });
+
+    if (insufficientStockItems.length > 0) {
+      const message = insufficientStockItems
+        .map(item => `${item.menuName}: 필요 ${item.required}개, 재고 ${item.available}개`)
+        .join('\n');
+      alert(`재고가 부족합니다:\n${message}`);
+      return;
+    }
+
     // 주문 생성
     const totalPrice = cartItems.reduce((sum, item) => {
       const itemPrice = item.basePrice + item.selectedOptions.reduce((optSum, opt) => optSum + opt.price, 0);
@@ -166,6 +199,7 @@ function App() {
 
     setOrders([newOrder, ...orders]);
     setOrderIdCounter(orderIdCounter + 1);
+    setOrderModalMessage(`주문 번호: ${orderIdCounter}\n총 금액: ${totalPrice.toLocaleString()}원`);
     setShowOrderModal(true); // 모달 띄움
     setCartItems([]);
   };
@@ -218,9 +252,12 @@ function App() {
       <Header currentPage={currentPage} onNavigate={handleNavigate} />
       {/* 주문 완료 모달 */}
       {showOrderModal && (
-        <div className="modal-overlay">
-          <div className="modal-box">
+        <div className="modal-overlay" onClick={() => setShowOrderModal(false)}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
             <h3>주문이 완료되었습니다!</h3>
+            <p className="modal-message" style={{ whiteSpace: 'pre-line', marginBottom: '1rem', color: '#4b5563' }}>
+              {orderModalMessage}
+            </p>
             <button className="modal-close-btn" onClick={() => setShowOrderModal(false)}>확인</button>
           </div>
         </div>
