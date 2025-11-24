@@ -65,7 +65,11 @@
   margin: 0 auto;
   cursor: pointer;
   transition: background 0.17s;
+<<<<<<< Current (Your changes)
+  }
+=======
 }
+>>>>>>> Incoming (Background Agent changes)
 .modal-close-btn:hover {
   background: #5b21b6;
 }
@@ -73,7 +77,7 @@
 @media (max-width: 768px) {
   .main-content {
     padding: 1rem;
-  }
+}
 
   .menu-grid {
     grid-template-columns: 1fr;
